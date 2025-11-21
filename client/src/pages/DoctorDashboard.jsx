@@ -5,6 +5,7 @@ import Layout from '../components/Layout';
 function DoctorDashboard() {
   const [visits, setVisits] = useState([]);
   const [activeVisit, setActiveVisit] = useState(null);
+  const [dashboardData, setDashboardData] = useState(null);
 
   const [treatments, setTreatments] = useState([]);
   const [tName, setTName] = useState('');
@@ -15,6 +16,7 @@ function DoctorDashboard() {
 
   useEffect(() => {
     loadVisits();
+    loadDashboard();
   }, []);
 
   const loadVisits = () => {
@@ -22,11 +24,22 @@ function DoctorDashboard() {
       .then(res => setVisits(res.data));
   };
 
+  const loadDashboard = async () => {
+    try {
+      const res = await axios.get(`http://localhost:3001/api/doctor/dashboard/${user.id}`);
+      setDashboardData(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const startVisit = async (visitId) => {
     try {
       await axios.put(`http://localhost:3001/api/visits/start/${visitId}`, { doctorId: user.id });
       setActiveVisit(visitId);
       alert("Visit Started");
+      loadVisits();
+      loadDashboard();
     } catch (err) {
       alert(err.response.data.message);
     }
@@ -51,6 +64,7 @@ function DoctorDashboard() {
     setActiveVisit(null);
     setTreatments([]);
     loadVisits();
+    loadDashboard();
   };
 
   // Calculate statistics
@@ -97,6 +111,114 @@ function DoctorDashboard() {
               <div className="stat-change">Overall</div>
             </div>
           </div>
+
+          {/* Revenue Statistics */}
+          {dashboardData && (
+            <div className="dashboard-grid" style={{ marginBottom: '2rem' }}>
+              <div className="stat-card">
+                <div className="stat-icon accent">💰</div>
+                <div className="stat-label">Today's Revenue</div>
+                <div className="stat-value">${parseFloat(dashboardData.revenue.today || 0).toFixed(2)}</div>
+                <div className="stat-change">{dashboardData.revenue.todayCount} visits</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon secondary">📈</div>
+                <div className="stat-label">This Week</div>
+                <div className="stat-value">${parseFloat(dashboardData.revenue.week || 0).toFixed(2)}</div>
+                <div className="stat-change positive">{dashboardData.revenue.weekCount} visits</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon primary">📆</div>
+                <div className="stat-label">This Month</div>
+                <div className="stat-value">${parseFloat(dashboardData.revenue.month || 0).toFixed(2)}</div>
+                <div className="stat-change positive">{dashboardData.revenue.monthCount} visits</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon accent">👥</div>
+                <div className="stat-label">Total Patients</div>
+                <div className="stat-value">{dashboardData.patients.total}</div>
+                <div className="stat-change">Unique patients</div>
+              </div>
+            </div>
+          )}
+
+          {/* Today's Appointments */}
+          {dashboardData && dashboardData.todayAppointments.length > 0 && (
+            <div className="card" style={{ marginBottom: '2rem' }}>
+              <div className="card-header">
+                <h3>📋 Today's Appointments</h3>
+              </div>
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Patient</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardData.todayAppointments.map(v => (
+                      <tr key={v.id}>
+                        <td>{new Date(v.date).toLocaleTimeString()}</td>
+                        <td style={{ fontWeight: 600 }}>{v.patient_name}</td>
+                        <td>
+                          <span className={`status-badge status-${v.status}`}>{v.status}</span>
+                        </td>
+                        <td>
+                          {v.status === 'booked' && (
+                            <button className="btn-primary" onClick={() => startVisit(v.id)}>▶ Start</button>
+                          )}
+                          {v.status === 'in_progress' && (
+                            <button className="btn-success" onClick={() => setActiveVisit(v.id)}>↻ Resume</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Recent Completed Visits */}
+          {dashboardData && dashboardData.recentVisits.length > 0 && (
+            <div className="card" style={{ marginBottom: '2rem' }}>
+              <div className="card-header">
+                <h3>🕐 Recent Completed Visits</h3>
+              </div>
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Patient</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardData.recentVisits.map(v => (
+                      <tr key={v.id}>
+                        <td>{new Date(v.date).toLocaleDateString()}</td>
+                        <td style={{ fontWeight: 600 }}>{v.patient_name}</td>
+                        <td style={{ color: 'var(--secondary)', fontWeight: 600 }}>
+                          ${parseFloat(v.total_amount || 0).toFixed(2)}
+                        </td>
+                        <td>
+                          <span className={`status-badge status-${v.status}`}>{v.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </>
       )}
 
