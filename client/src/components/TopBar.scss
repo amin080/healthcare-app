@@ -1,0 +1,138 @@
+.topbar {
+    height: 70px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+
+    &-left {
+        flex: 1;
+
+        .greeting {
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: var(--text-primary);
+                margin: 0;
+            }
+
+            p {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+                margin: 0;
+            }
+        }
+    }
+
+    &-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .notification-btn {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+
+            &:hover {
+                background: var(--sidebar-hover);
+                color: var(--text-primary);
+            }
+
+            .badge {
+                position: absolute;
+                top: -4px;
+                right: -4px;
+                width: 18px;
+                height: 18px;
+                background: var(--danger);
+                color: white;
+                border-radius: 50%;
+                font-size: 0.7rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid var(--card-bg);
+            }
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+
+            &:hover {
+                background: var(--sidebar-hover);
+            }
+
+            .avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--primary), var(--primary-light));
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 0.875rem;
+            }
+
+            .user-info {
+                .user-name {
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    line-height: 1.2;
+                }
+
+                .user-role {
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    text-transform: capitalize;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .topbar {
+        padding: 0 1rem;
+
+        &-left .greeting {
+            h2 {
+                font-size: 1.25rem;
+            }
+
+            p {
+                display: none;
+            }
+        }
+
+        &-right .user-profile .user-info {
+            display: none;
+        }
+    }
+}
